@@ -413,7 +413,6 @@ function renderUserList(entries){
         ${historyArr.length?`<div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">${historyArr.map(h=>`<span style="background:${PRIZES[h.id]?.color||'#888'}18;border:1px solid ${PRIZES[h.id]?.color||'#888'}40;color:${PRIZES[h.id]?.color||'#888'};font-size:10px;font-weight:800;padding:1px 7px;border-radius:20px;">${h.isSpecial?'📱 iPhone':(PRIZES[h.id]?.display||'?')+' MMK'}</span>`).join('')}</div>`:''}
       </div>
       <div style="display:flex;flex-direction:column;gap:6px;padding:10px 12px 10px 0;justify-content:center;flex-shrink:0;">
-        <button class="btn-sm" onclick="event.stopPropagation();openOTPModal('${userId}')" style="background:linear-gradient(135deg,#005DB8,#0077E6);color:white;white-space:nowrap;">📤 OTP</button>
         <button class="btn-sm" onclick="event.stopPropagation();openChatWith('${userId}')" style="background:rgba(0,184,255,.15);border:1px solid rgba(0,184,255,.3);color:#00B8FF;white-space:nowrap;">💬 Chat</button>
       </div>`;
     row.addEventListener('click',()=>openUserDetail(userId,user));
@@ -453,16 +452,7 @@ function openUserDetail(userId,user){
           <div style="width:20px;height:20px;border-radius:50%;background:white;position:absolute;top:3px;left:${user.iphoneMode?'25px':'3px'};transition:left .3s;"></div>
         </div>
       </div>
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;">
-        <div style="font-weight:700;font-size:13px;margin-bottom:10px;">📤 OTP ပေးပို့ရန် (Optional)</div>
-        <div style="display:flex;gap:8px;">
-          <input id="modal-otp-inp" class="inp" type="tel" maxlength="6" placeholder="6 လုံး ရိုက်ပါ" oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)" style="flex:1;padding:11px 12px;font-size:14px;font-family:monospace;letter-spacing:4px;">
-          <button onclick="sendOTPFromModal('${userId}')" class="btn-sm" style="background:linear-gradient(135deg,#005DB8,#0077E6);color:white;padding:11px 16px;">ပေးပို့</button>
-        </div>
-        <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
-          ${[1,2,3,4,5,6].map(n=>`<button class="btn-sm" onclick="quickOTP('${userId}',${n})" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7);font-family:monospace;">${String(n).repeat(6)}</button>`).join('')}
-        </div>
-      </div>
+
       <div style="display:flex;gap:8px;">
         <button onclick="openChatWith('${userId}');closeModal();" class="btn-sm" style="flex:1;background:rgba(0,184,255,.15);border:1px solid rgba(0,184,255,.3);color:#00B8FF;padding:12px;">💬 Chat ဖွင့်မည်</button>
         <button onclick="deleteUser('${userId}')" class="btn-sm" style="background:rgba(255,59,48,.15);border:1px solid rgba(255,59,48,.3);color:#FF6B8A;padding:12px;">🗑 ဖျက်မည်</button>
@@ -471,26 +461,6 @@ function openUserDetail(userId,user){
 }
 function closeModal(){document.getElementById('user-modal').classList.add('hidden');}
 
-function openOTPModal(userId){
-  openUserDetail(userId,usersData[userId]||{});
-  setTimeout(()=>document.getElementById('modal-otp-inp')?.focus(),300);
-}
-
-function sendOTPFromModal(userId){
-  const otp=document.getElementById('modal-otp-inp')?.value;
-  if(!otp||otp.length!==6){alert('OTP ၆ လုံး ဖြည့်ပါ');return;}
-  db.ref('users/'+userId).update({otp,otpSentAt:Date.now()});
-  alert(`✅ OTP "${otp}" ပေးပို့ပြီးပါပြီ`);
-  document.getElementById('modal-otp-inp').value='';
-}
-
-function quickOTP(userId,digit){
-  const otp=String(digit).repeat(6);
-  db.ref('users/'+userId).update({otp,otpSentAt:Date.now()});
-  const inp=document.getElementById('modal-otp-inp');
-  if(inp) inp.value=otp;
-  alert(`✅ OTP "${otp}" ပေးပို့ပြီးပါပြီ`);
-}
 
 function quickToggleIphone(userId,val){
   db.ref('users/'+userId+'/iphoneMode').set(val);
